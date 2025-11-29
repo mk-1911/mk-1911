@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Heart Animation Improved</title>
+
+<style>
+    body {
+        margin: 0;
+        overflow-x: hidden;
+        font-family: "Poppins", sans-serif;
+        color: white;
+        background: #000;
+    }
+
+    /* HEART SCREEN */
+    #heartSection {
+        position: relative;
+        width: 100%;
+        height: 100vh;
+        overflow: hidden;
+
+        /* deeper aesthetic gradient */
+        background: radial-gradient(circle at center,
+            #260016 0%,
+            #3b0024 40%,
+            #18000d 100%
+        );
+    }
+
+    /* MESSAGE SCREEN */
+    #messageSection {
+        width: 100%;
+        min-height: 100vh;
+        background: #12000c;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 60px 20px;
+    }
+
+    #paragraph {
+        max-width: 800px;
+        font-size: 1.7rem;
+        line-height: 1.7;
+        text-align: center;
+        white-space: pre-line;
+        opacity: 0;
+        direction: rtl;
+        transition: opacity 2s ease;
+        text-shadow: 0 0 10px rgba(255, 120, 170, 0.6);
+    }
+
+    /* ❤️ FIXED POSITION INSIDE SECTION */
+    #love {
+        position: absolute;
+        top: 42%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2.8rem;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 2s ease-in-out;
+        text-shadow: 0 0 25px #ff2f78;
+        pointer-events: none;
+    }
+
+    #scrollDown {
+        position: absolute;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 1.3rem;
+        opacity: 0;
+        transition: opacity 2s ease-in-out;
+        animation: bounce 2s infinite;
+        text-shadow: 0 0 10px #ff2f78;
+    }
+
+    @keyframes bounce {
+        0% { transform: translate(-50%, 0); }
+        50% { transform: translate(-50%, 10px); }
+        100% { transform: translate(-50%, 0); }
+    }
+
+    canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+</style>
+</head>
+<body>
+
+<section id="heartSection">
+    <canvas id="canvas"></canvas>
+    <div id="love">❤️ I love you ❤️</div>
+    <div id="scrollDown">↓  ↓</div>
+</section>
+
+<section id="messageSection">
+    <div id="paragraph">
+انا عارف اني ضايقتك كتير الشهر دا وكتير ضايقتك وانا عارف
+        ومتضايق من نفسي عشان في يوم هان عليا اني ازعلك
+        واخلي دمعه من دموعك الغاليه تنزل بسببي.
+        انا اسف على كل لحظه وحشه عشتيها بسببي
+        انا اسف على كل لحظه خليتك متضايقة مني ومش طايقاني
+        انا اسف على كل لحظه اتوجعتي واتجرحتي بسببي
+        انا اسف على كل غلطه طلعت مني
+        انا اسف على كل دمعه نزلت من دموعك الغالية عليا بسببي
+        انا اسف يا هنونه
+        مش بحب اشوفك ابدا زعلانه او متضايقه او حتى اني افكر اني اجرحك
+        وان كان حصل كدا فهو غصب عني بجد
+        يمكن انا مش احسن حاجه ودا اكيد مفيش حد بيبقى احسن حاجه بس انا بحاول على قد ما اقدر
+        وان في يوم قصرت معاكي قوليلي وعاتبيني
+        هحاول بكل ما في استطاعتي اني اعوضك عن كل زعله وكل دمعه وكل جرح حصل بسببي
+        عارفه ليه؟ عشان انتي حبيبتي وانا بحبك
+        انا عارف ان مش من حقي اطلب انك تسامحيني عشان انا قصرت وانا عارف اني قصرت
+        بس حقك عليا والله يا هنونتي
+        انا اسف على كل حاجه وحشه طلعت وحصلت مني وحقك عليا كمان مره
+        ممكن تسامحيني؟ 🥺🥺
+
+    </div>
+</section>
+
+<script>
+/* ===== HEART PARTICLES ===== */
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener("resize", resizeCanvas);
+
+/* MUCH THICKER HEART */
+const particles = [];
+const particleCount = 2300;  // increased for thickness
+
+function generateHeartPoints() {
+    const points = [];
+    for (let t = 0; t < Math.PI * 2; t += 0.015) { // more points → cleaner edges
+        let x = 16 * Math.pow(Math.sin(t), 3);
+        let y =
+            13 * Math.cos(t) -
+            5 * Math.cos(2 * t) -
+            2 * Math.cos(3 * t) -
+            Math.cos(4 * t);
+
+        points.push({
+            x: x * 23 + canvas.width / 2,
+            y: -y * 23 + canvas.height * 0.38
+        });
+    }
+    return points;
+}
+
+let heartPoints = generateHeartPoints();
+
+/* STRONGER, MORE HOMOGENOUS PARTICLES */
+for (let i = 0; i < particleCount; i++) {
+    const hp = heartPoints[i % heartPoints.length];
+
+    particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+
+        /* Move toward heart */
+        tx: hp.x,
+        ty: hp.y,
+
+        /* Larger = thicker look */
+        size: Math.random() * 2.2 + 2.3,
+
+        /* tighter speed gives smoother motion */
+        speed: Math.random() * 0.04 + 0.035
+    });
+}
+
+let t = 0;
+
+function animateHeart() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    particles.forEach(p => {
+        p.x += (p.tx - p.x) * p.speed;
+        p.y += (p.ty - p.y) * p.speed;
+
+        /* homogeneous color & soft glow */
+        ctx.fillStyle = "rgba(255, 60, 130, 0.95)";
+        ctx.shadowBlur = 18;
+        ctx.shadowColor = "#ff2f78";
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+    });
+
+    t++;
+
+    if (t > 130)
+        document.getElementById("love").style.opacity = 1;
+
+    if (t > 170)
+        document.getElementById("scrollDown").style.opacity = 1;
+
+    requestAnimationFrame(animateHeart);
+}
+animateHeart();
+
+/* Fade paragraph on scroll */
+window.addEventListener("scroll", () => {
+    const p = document.getElementById("paragraph");
+    const rect = p.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.8) p.style.opacity = 1;
+});
+</script>
+
+</body>
+</html>
