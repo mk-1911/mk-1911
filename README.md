@@ -45,7 +45,7 @@ An Excel-based business operating system for managing leads, clients, projects, 
 ### Cars Engine Analysis
 An automotive data analysis project exploring vehicle and engine data through data cleaning, querying, analysis, and visualization.
 
-**Technologies:** Python, Pandas, SQL, Excel, Power BI
+**Technologies:** SQL, Excel, Power BI
 
 [View Repository](https://github.com/mk-1911/cars-engine-analysis)
 
